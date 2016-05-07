@@ -55,8 +55,8 @@ get.result<- function(alg,x){
   else if (alg == 5){
     alg.name <- 'EM'
     source('Algorithms/EM_estimate_mixture_Gaussian.R')
-    out <- SelectLambda(x = x, k = 6, nvals = 20, verbose = T)
-    out1 <- EstimateMixtureGaussian(x = x, k = 6, lambda = out$best.lambda, verbose = T)
+    out <- SelectLambda(x = x, k = 6, nvals = 20, verbose = F)
+    out1 <- EstimateMixtureGaussian(data = x, k = 6, lambda = out$best.lambda, verbose = F)
     return(list(name=alg.name, Cs=out1$partition, weights = (1 - out1$noise.feature)))
   }
 }
