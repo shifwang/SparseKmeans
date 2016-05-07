@@ -119,6 +119,8 @@ for (mu_ind in 1:length(mus)){
     }
     for (item in tmp) {
       info[item[[1]],Nf_ind,mu_ind][[1]]$data = item[[2]]
+      info[item[[1]], Nf_ind, mu_ind][[1]]$true.label = true.label
+      info[item[[1]], Nf_ind, mu_ind][[1]]$relevant.feature = c(rep(T, Nsignals),rep(F,Nfeatures[Nf_ind] - Nsignals))
     }
   }
 }
@@ -138,7 +140,7 @@ for (mu_ind in 1:length(mus)){
       x = info[iter, Nf_ind, mu_ind][[1]]$data
       #x = scale(x,TRUE,TRUE) #FIXME: already scaled in give.data
       results = list()
-      for (alg in rivals.num){
+      for (alg in 1:rivals.num){
         results[[alg]] = get.result(alg,x)
       }
       return(list(iter,results))

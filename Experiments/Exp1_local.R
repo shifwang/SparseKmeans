@@ -111,6 +111,8 @@ for (iter in 1:iter.num){
     for (Nf_ind in 1:length(Nfeatures)){
       x = give.data(SamplesPerCluster,Nfeatures[Nf_ind],Nsignals,ClusterNumber,mus[mu_ind])
       info[iter,Nf_ind,mu_ind][[1]]$data = x
+      info[iter, Nf_ind, mu_ind][[1]]$true.label = true.label
+      info[iter, Nf_ind, mu_ind][[1]]$relevant.feature = c(rep(T, Nsignals),rep(F,Nfeatures[Nf_ind] - Nsignals))
     }
   }
 }
