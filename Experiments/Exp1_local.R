@@ -32,7 +32,7 @@ get.result<- function(alg,x){
   }
   else if (alg==2){
     alg.name<- 'L1 KMeans'
-    source('Algorithms\L1_correction.R', encoding='UTF-8')
+    source('Algorithms/L1_correction.R', encoding='UTF-8')
     bestl1<-KMeansSparseCluster.permute(x=x,K=6,nvals=100, silent = T)
     l1<-KMeansSparseCluster(x=x,K=6,wbounds=(bestl1$bestw), silent = T)
     #     l1<-KMeansSparseCluster(x=x,K=3,wbounds=10)
@@ -40,7 +40,7 @@ get.result<- function(alg,x){
   }
   else if (alg==3){
     alg.name <- 'L0 KMeans'
-    source('Algorithms\L0_original.R')
+    source('Algorithms/L0_original.R')
     best0 <-select.bound(x=x,K=6,nvals=100)
     out <-give.cluster(x=x,K=6,wbounds=best0$bestw)
     #     out<-give.cluster(x=x,K=3,wbounds=50)
@@ -48,13 +48,13 @@ get.result<- function(alg,x){
   }
   else if (alg == 4){
     alg.name = 'PCA-Kmeans'
-    source('Algorithms\PCA-Kmeans.R')
+    source('Algorithms/PCA-Kmeans.R')
     out = PCA.kmeans(x = x, K = 6)
     return(list(name=alg.name,Cs=out$Cs,weights=out$weight))
   }
   else if (alg == 5){
     alg.name <- 'EM'
-    source('Algorithms\EM_estimate_mixture_Gaussian.R')
+    source('Algorithms/EM_estimate_mixture_Gaussian.R')
     out <- SelectLambda(x = x, k = 6, nvals = 20, verbose = T)
     out1 <- EstimateMixtureGaussian(x = x, k = 6, lambda = out$best.lambda, verbose = T)
     return(list(name=alg.name, Cs=out1$partition, weights = (1 - out1$noise.feature)))
