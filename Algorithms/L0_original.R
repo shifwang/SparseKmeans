@@ -31,7 +31,7 @@ L1<-function(x){
 update.Cs <- function (x, K, ws, Cs) 
 {
   if (sum(ws != 0) == 1) {
-    only.one.feature <- F
+    only.one.feature <- T
   } else {
     only.one.feature <- F
   }

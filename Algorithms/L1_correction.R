@@ -70,14 +70,30 @@ UpdateWs <- function (x, Cs, l1bound)
 
 UpdateCs <- function (x, K, ws, Cs) 
 {
-  x <- x[, ws != 0]
+  if (sum(ws != 0) == 1) {
+    only.one.feature <- T
+  } else {
+    only.one.feature <- F
+  }
+  if (only.one.feature) {
+    x <- matrix(x[, ws != 0], ncol = 1)
+  } else {
+    x <- x[, ws != 0]
+  }
+  
   z <- sweep(x, 2, sqrt(ws[ws != 0]), "*")
   nrowz <- nrow(z)
   mus <- NULL
   if (!is.null(Cs)) {
     for (k in unique(Cs)) {
-      if (sum(Cs == k) > 1) 
-        mus <- rbind(mus, apply(z[Cs == k, ], 2, mean))
+      if (sum(Cs == k) > 1) {
+        if (only.one.feature) {
+          mus <- rbind(mus, apply(matrix(z[Cs == k, ], ncol = 1), 2, mean))
+        } else {
+          mus <- rbind(mus, apply(z[Cs == k, ], 2, mean))
+        }
+      }
+        
       if (sum(Cs == k) == 1) 
         mus <- rbind(mus, z[Cs == k, ])
     }
