@@ -53,6 +53,9 @@ EstimateMixtureGaussian <- function(data, k, lambda,
   penalty.value <- list() # 
   total.obj <- list() # log.likelihood + penalty.value
   for (iter in 1:max.iter) {
+    if (iter == 152) {
+      bb = 1
+    }
     # E step: update tau
     for (i in 1:n) {
       pr <- exp(-Dist(matrix(data[i,],nrow = 1), centers, 0.5/variance))
@@ -61,7 +64,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
     }
     # M step: update other variables
     # update portion
-    portion <- apply(tau, 2, sum) / n 
+    portion <- apply(tau, 2, sum) / n #  FIXME: element of the portion can be zero
     # update variance
     variance <- matrix(0, p)
     for (i in 1:n) {
@@ -84,7 +87,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
     # record and print
     log.likelihood[[iter]] <- ComputeLogLikelihood(data, portion, centers, variance, tau)
     penalty.value[[iter]] <- ComputePenaltyValue(centers, penalty.type, lambda)
-    total.obj[[iter]] <-  log.likelihood[[iter]] + penalty.value[[iter]]
+    total.obj[[iter]] <-  log.likelihood[[iter]] - penalty.value[[iter]]
     if (record) {
       history[[iter]] <- list(log.likelihood = log.likelihood[[iter]],
                               penalty.value = penalty.value[[iter]],
@@ -93,7 +96,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
                               variance = variance, tau = tau)
     }
     if (verbose) {
-      len <- Print(len, sprintf('iter: %d, log.likelihood: %3.2f',iter, total.obj[[iter]]), start.time)
+      len <- Print(len, sprintf('iter: %d, total.obj: %3.2f',iter, total.obj[[iter]]), start.time)
     }
     # quit condition check
     if (iter > 10 && abs(total.obj[[iter - 3]] - total.obj[[iter]]) < abs.tol) {
@@ -150,7 +153,7 @@ ComputeLogLikelihood <- function(data, portion, centers,
   p <- dim(data)[2]
   likelihood.first <- sum(apply(tau, 2, sum) * log(portion))
   square.dist <- Dist(data, centers, 0.5/variance)
-  likelihood.second <- sum(tau * -square.dist) - sum(tau) * (p / 2 * log(pi) + sum(log(variance)))
+  likelihood.second <- sum(tau * -square.dist) - sum(tau) * (p * log(pi) + sum(log(variance))) / 2 
   return(likelihood.first + likelihood.second)
 }
 Dist <- function(x, y, weight) {
