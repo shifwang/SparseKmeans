@@ -53,9 +53,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
   penalty.value <- list() # 
   total.obj <- list() # log.likelihood + penalty.value
   for (iter in 1:max.iter) {
-    if (iter == 152) {
-      bb = 1
-    }
+
     # E step: update tau
     for (i in 1:n) {
       pr <- exp(-Dist(matrix(data[i,],nrow = 1), centers, 0.5/variance))
@@ -69,6 +67,9 @@ EstimateMixtureGaussian <- function(data, k, lambda,
     variance <- matrix(0, p)
     for (i in 1:n) {
       for (j in 1:k) {
+        if (sum(is.na(centers[j, ])) > 0) {
+          next #  when center[j, ] is NA, skip it
+        }
         variance <- variance + tau[i,j] * (data[i,] - centers[j,])^2
       }
     }
@@ -76,6 +77,10 @@ EstimateMixtureGaussian <- function(data, k, lambda,
     stopifnot(!any(abs(variance) < 1e-10))
     # update centers
     for (j in 1:k) {
+      if (portion[j] < 1e-10) {
+        centers[j, ] <- 0
+        next
+      }
       center.hat <- apply(tau[,j] * data, 2, sum) / portion[j] / n
       lambda.hat <- lambda / (n * portion[j]) * variance
       if (penalty.type == 'l1') {
@@ -151,7 +156,7 @@ ComputeLogLikelihood <- function(data, portion, centers,
                                  variance, tau) {
   # Compute the log likelihood function for data under mixture Gaussian model
   p <- dim(data)[2]
-  likelihood.first <- sum(apply(tau, 2, sum) * log(portion))
+  likelihood.first <- sum(apply(tau, 2, sum) * log(portion), na.rm = T)
   square.dist <- Dist(data, centers, 0.5/variance)
   likelihood.second <- sum(tau * -square.dist) - sum(tau) * (p * log(pi) + sum(log(variance))) / 2 
   return(likelihood.first + likelihood.second)
