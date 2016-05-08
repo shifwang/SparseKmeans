@@ -1,4 +1,16 @@
 # Generate plots using output file from experiments
+CER<- function (partition1=NULL,partition2=NULL){
+  if (length(partition1)!= length(partition2))
+    stop("partition1 and 2 don't have the same observations")
+  mycer<-0;
+  for (i in 1:(length(partition1)-1)){
+    for (j in (i+1):length(partition1)){
+      mycer<- mycer + abs((partition1[i]==partition1[j])-(partition2[i]==partition2[j])    )  
+    }
+  }
+  mycer<- mycer/(length(partition1)*(length(partition1)-1)/2)
+  return(mycer)
+}
 
 load('2016-04-25-02-19-37-info-2.RData') #  load data
 

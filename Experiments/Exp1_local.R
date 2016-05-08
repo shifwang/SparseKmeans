@@ -11,18 +11,6 @@ give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNu
   return(x)
 }
 
-CER<- function (partition1=NULL,partition2=NULL){
-  if (length(partition1)!= length(partition2))
-    stop("partition1 and 2 don't have the same observations")
-  mycer<-0;
-  for (i in 1:(length(partition1)-1)){
-    for (j in (i+1):length(partition1)){
-      mycer<- mycer + abs((partition1[i]==partition1[j])-(partition2[i]==partition2[j])    )  
-    }
-  }
-  mycer<- mycer/(length(partition1)*(length(partition1)-1)/2)
-  return(mycer)
-}
 
 get.result<- function(alg,x){
   if (alg==1){
