@@ -98,7 +98,7 @@ setwd('./')
 if (verbose) {
   len = print(len,' Collecting Data...')
 }
-
+library('MASS')
 library('foreach')
 library('doParallel')
 ncores = 8 # Use two cores, use lscpu/nproc to check availabel cpus
