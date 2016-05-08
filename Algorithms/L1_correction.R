@@ -2,8 +2,9 @@
 #稍微修改了原文聚类的方法
 #修改了每次不同参数对应的Cs的重置
 KMeansSparseCluster <- function (x, K = NULL, wbounds = NULL, nstart = 20, silent = FALSE, 
-                                 maxiter = 6, centers = NULL) 
+                                 maxiter = 6, centers = NULL, seed = 123) 
 {
+  set.seed(seed)
   if (is.null(K) && is.null(centers)) 
     stop("Must provide either K or centers.")
   if (!is.null(K) && !is.null(centers)) {
@@ -164,8 +165,9 @@ GetWCSS <- function (x, Cs, ws = NULL)
 }
 
 KMeansSparseCluster.permute<-function (x, K = NULL, nperms = 1, wbounds = NULL, silent = FALSE, 
-                                       nvals = 10, centers = NULL) 
+                                       nvals = 10, centers = NULL, seed = 101) 
 {
+  set.seed(seed)
   if (is.null(wbounds)) 
     wbounds <- exp(seq(log(1.2), log(sqrt(ncol(x)) * 0.9), 
                        len = nvals))
