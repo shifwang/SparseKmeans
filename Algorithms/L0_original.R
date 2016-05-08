@@ -1,14 +1,17 @@
 #give L0 results
 #parameter selected using original Gap Statistics
-give.cluster <- function (x, K = NULL, wbounds = NULL, initial.iter = 20, maxiter = 6) 
+give.cluster <- function (x, K = NULL, wbounds = NULL, 
+                          initial.iter = 20, maxiter = 6,
+                          seed = 123) 
 {
+  set.seed(seed)
   wbounds <- c(wbounds)
   out<- NULL
   Cs0 <- kmeans(x, centers = K, nstart = initial.iter)$cluster
   for (i in 1:length(wbounds)) { 
-    Cs<-Cs0
+    Cs <- Cs0
     w <- rep(1/sqrt(ncol(x)), ncol(x))
-    w.old <-rep(1,ncol(x)) 
+    w.old <- rep(1, ncol(x)) 
     iter <- 0
     while (sum(w!=w.old) >10  && 
              iter < maxiter) {
@@ -27,13 +30,27 @@ L1<-function(x){
 }
 update.Cs <- function (x, K, ws, Cs) 
 {
-  z <- x[, ws != 0]
+  if (sum(ws != 0) == 1) {
+    only.one.feature <- F
+  } else {
+    only.one.feature <- F
+  }
+  if (only.one.feature) {
+    z <- matrix(x[, ws != 0],ncol = 1)
+  } else {
+    z <- x[, ws != 0]
+  }
   nrowz <- nrow(z) # number of samples
   mus <- NULL
   if (!is.null(Cs)) {
     for (k in unique(Cs)) {
-      if (sum(Cs == k) > 1) 
-        mus <- rbind(mus, apply(z[Cs == k, ], 2, mean))
+      if (sum(Cs == k) > 1) {
+        if (only.one.feature){
+          mus <- rbind(mus, apply(matrix(z[Cs == k, ],ncol = 1), 2, mean))
+        } else {
+          mus <- rbind(mus, apply(z[Cs == k, ], 2, mean))
+        }
+      }
       if (sum(Cs == k) == 1) 
         mus <- rbind(mus, z[Cs == k, ])
     }
@@ -79,8 +96,9 @@ give.bcss <- function (x, Cs,w=NULL)
 }
 
 select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL, 
-                          nvals = 10) 
+                          nvals = 10, seed = 101) 
 {
+  set.seed(seed)
   if (is.null(wbounds)) 
     wbounds <-exp(seq(log(10),log(ncol(x)),length.out=nvals))
   x.null <- list()#the samples from x without cluster
