@@ -4,7 +4,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
                                     abs.tol  = 1e-7,
                                     max.iter = 300,
                                     verbose  = TRUE,
-                                    record   = TRUE,
+                                    record   = FALSE,
                                     seed     = 101){
   # use EM algorithm to solve penalized mixture Gaussian likelihood
   # Args:
