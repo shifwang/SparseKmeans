@@ -79,6 +79,6 @@ MakeBoxplot(result.cer,
 MakeBoxplot(result.recall, 
             ylim = c(0, 1),
             alg.names)
-MakeBoxplot(result.cer, 
+MakeBoxplot(result.precision, 
             ylim = c(0, 1),
             alg.names)
