@@ -59,6 +59,12 @@ EstimateMixtureGaussian <- function(data, k, lambda,
       pr <- exp(-Dist(matrix(data[i,],nrow = 1), centers, 0.5/variance))
       tmp <- portion * pr
       tau[i,] <- tmp/sum(tmp)
+      if (sum(is.na(tau[i, ])) > 0) {
+        #  If tau[i, ] has NA 
+        # (happens when sum(tmp) is very small for example), 
+        #  it is too unstable so just make it equally likely.
+        tau[i, ] = 1/k 
+      }
     }
     # M step: update other variables
     # update portion
@@ -67,9 +73,6 @@ EstimateMixtureGaussian <- function(data, k, lambda,
     variance <- matrix(0, p)
     for (i in 1:n) {
       for (j in 1:k) {
-        if (sum(is.na(centers[j, ])) > 0) {
-          next #  when center[j, ] is NA, skip it
-        }
         variance <- variance + tau[i,j] * (data[i,] - centers[j,])^2
       }
     }
