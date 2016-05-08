@@ -2,7 +2,10 @@
 # data is generated from mixture Gaussian with independent features
 # mu = 0.6 or 0.7
 # p  = 200, 500, 1000
-give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNumber=3,mu=1) {
+give.data <- function (SamplesPerCluster = 20, 
+                       Nfeatures = 50, 
+                       Nsignals = 10,
+                       ClusterNumber = 3, mu = 1) {
   x <- matrix(rnorm(Nfeatures*SamplesPerCluster*ClusterNumber),ncol=Nfeatures)
   for (i in 1:ClusterNumber){
     x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] +(i-2)*mu
@@ -13,62 +16,63 @@ give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNu
 
 
 get.result<- function(alg,x){
-  if (alg==1){
+  if (alg == 1){
     alg.name<-'Standard Kmeans'
-    k<-kmeans(x=x,centers=6,nstart=20)
-    return(list(name=alg.name,Cs=k[[1]],weights=rep(1,ncol(x))))
+    k <- kmeans(x = x, centers = 6, nstart = 20)
+    return(list(name = alg.name, Cs = k[[1]], weights = rep(1,ncol(x))))
   }
-  else if (alg==2){
-    alg.name<- 'Standard L1'
+  else if (alg == 2){
+    alg.name <- 'Standard L1'
     source('Algorithms/L1_correction.R', encoding='UTF-8')
-    bestl1<-KMeansSparseCluster.permute(x=x,K=6,nvals=100, silent = T)
-    l1<-KMeansSparseCluster(x=x,K=6,wbounds=(bestl1$bestw), silent = T)
+    bestl1 <- KMeansSparseCluster.permute(x = x, K = 6, nvals = 100,
+                                        silent = T)
+    l1 <- KMeansSparseCluster(x = x, K = 6, wbounds = (bestl1$bestw), silent = T)
     #     l1<-KMeansSparseCluster(x=x,K=3,wbounds=10)
-    return(list(name=alg.name,Cs=l1[[1]]$Cs,weights=l1[[1]]$ws ))
+    return(list(name = alg.name, Cs = l1[[1]]$Cs, weights = l1[[1]]$ws))
   }
-  else if (alg==3){
-    alg.name<- 'original L0'
+  else if (alg == 3){
+    alg.name <- 'original L0'
     source('Algorithms/L0_original.R')
-    best0<-select.bound(x=x,K=6,nvals=100)
-    out<-give.cluster(x=x,K=6,wbounds=best0$bestw)
+    best0 <- select.bound(x=x,K=6,nvals=100)
+    out <- give.cluster(x=x,K=6,wbounds=best0$bestw)
     #     out<-give.cluster(x=x,K=3,wbounds=50)
-    return(list(name=alg.name,Cs=out[[1]]$Cs,weights=out[[1]]$weight ))
+    return(list(name = alg.name, Cs = out[[1]]$Cs, weights = out[[1]]$weight))
   }
   else if (alg == 4){
-    alg.name = 'PCA-Kmeans'
+    alg.name <- 'PCA-Kmeans'
     source('Algorithms/PCA-Kmeans.R')
-    out = PCA.kmeans(x = x, K = 6)
-    return(list(name=alg.name,Cs=out$Cs,weights=out$weight))
+    out <- PCA.kmeans(x = x, K = 6)
+    return(list(name = alg.name, Cs = out$Cs, weights = out$weight))
   }
   else if (alg == 5) {
     alg.name <- 'EM'
     source('Algorithms/EM_estimate_mixture_Gaussian.R')
     out <- SelectLambda(x = x, k = 6, nvals = 20, verbose = F)
     out1 <- EstimateMixtureGaussian(data = x, k = 6, lambda = out$best.lambda, verbose = F)
-    return(list(name=alg.name, Cs=out1$partition, weights = (1 - out1$noise.feature)))
+    return(list(name = alg.name, Cs = out1$partition, weights = (1 - out1$noise.feature)))
   }
 }
 
 mydivision <- function(testx, x, weights,Cs){
-  cluster<- array(NA,nrow(testx))
+  cluster <- array(NA,nrow(testx))
   for (i in 1:nrow(testx)){
-    y<-array(NA,nrow(x))
+    y <- array(NA,nrow(x))
     for (j in 1:nrow(x)){
-      y[j]<- sum((x[j,]*weights-testx[i,]*weights)^2)
+      y[j] <- sum((x[j,] * weights - testx[i,] * weights)^2)
     }
     cluster[i] <- Cs[which.min(y)]
   }
   return(cluster)
 }
-now = proc.time()[[3]]
+now <- proc.time()[[3]]
 print <- function(num,str){
   #cat(paste(rep('\b',num),collapse = ''))
-  str = paste(str,sprintf(' Passed %1.1f min..',(proc.time()[[3]] - now)/60))
-  cat(str,'\n')
+  str <- paste(str,sprintf(' Passed %1.1f min..',(proc.time()[[3]] - now)/60))
+  cat(str, '\n')
   return(nchar(str))
 }
 criteria.num      = 6    # Number of criteria
-iter.num          = 40   # Run how many times to estimate the variation
+iter.num          = 20   # Run how many times to estimate the variation
 SamplesPerCluster = 20   # How many samples in one cluster
 Nsignals          = 50   # Signal features
 ClusterNumber     = 6    # Number of Cluster
@@ -87,16 +91,16 @@ for (i in 1:ClusterNumber){
 # Main Part
 if (verbose) {
   len = 0
-  len = print(len,'Setting working directory...')
+  len = print(len, 'Setting working directory...')
 }
 setwd('./')
 if (verbose) {
-  len = print(len,' Collecting Data...')
+  len = print(len, ' Collecting Data...')
 }
 
 library('foreach')
 library('doParallel')
-ncores = 8 # Use two cores, use lscpu/nproc to check availabel cpus
+ncores = 10 # Use ncores cores, use lscpu/nproc to check availabel cpus
 registerDoParallel(ncores)
 
 for (mu_ind in 1:length(mus)){
