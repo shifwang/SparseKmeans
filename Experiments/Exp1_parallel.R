@@ -1,4 +1,5 @@
 # Run first experiment parallelly 
+# revised to make each feature not exactly the same
 # data is generated from mixture Gaussian with independent features
 # mu = 0.6 or 0.7
 # p  = 200, 500, 1000
@@ -8,7 +9,7 @@ give.data <- function (SamplesPerCluster = 20,
                        ClusterNumber = 3, mu = 1) {
   x <- matrix(rnorm(Nfeatures*SamplesPerCluster*ClusterNumber),ncol=Nfeatures)
   for (i in 1:ClusterNumber){
-    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] +(i-2)*mu
+    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] +(i-2)*mu*(0.5 + 0.5 * runif(Nsignals))
   }
   x <- scale(x, TRUE, TRUE)
   return(x)

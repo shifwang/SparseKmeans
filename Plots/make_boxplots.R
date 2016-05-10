@@ -85,9 +85,9 @@ MakeBoxplot <- function(result,
 }
 MakeBoxplot(result.cer, 
             ylim = c(0, 0.2),
-            mus = c(2, 3),
+            mus = c(1, 1.5),
             alg.names)
 MakeBoxplot(result.Fscore, 
             ylim = c(0, 1),
-            mus = c(2, 3),
+            mus = c(1, 1.5),
             alg.names)
