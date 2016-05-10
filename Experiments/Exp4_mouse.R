@@ -32,7 +32,7 @@ get.result<- function(alg, x, cluster.number = 6){
     alg.name <- 'EM'
     source('Algorithms/EM_estimate_mixture_Gaussian.R')
     out <- SelectLambda(x = x, k = cluster.number, nvals = 20, verbose = F)
-    out1 <- EstimateMixtureGaussian(data = x, k = 6, lambda = out$best.lambda, verbose = F)
+    out1 <- EstimateMixtureGaussian(data = x, k = cluster.number, lambda = out$best.lambda, verbose = F)
     return(list(name=alg.name, Cs=out1$partition, weights = (1 - out1$noise.feature)))
   }
 }
@@ -45,7 +45,7 @@ print <- function(num,str){
 }
 
 iter.num          = 2   # Run how many times to estimate the variation
-ClusterNumber     = 19    # Number of Cluster
+cluster.number    = 19    # Number of Cluster
 rivals.num        = 5    # Number of algorithms
 verbose           = TRUE
 set.seed(11)
@@ -74,15 +74,15 @@ registerDoParallel(ncores)
 if (verbose) 
   len = print(len, 'Run Experiments...')
 
-tmp = foreach(iter=1:iter.num) %dopar%{
+tmp = foreach(iter = 1:iter.num) %dopar%{
   set.seed(iter * 1991)
   if (verbose) 
     len = print(len, paste('iter...', iter, 'seed...', iter * 1991))
-  data = raw.data$dmatrix
-  x = scale(x,TRUE,TRUE) #  Maybe not?
+  x = raw.data$dmatrix
+  x = scale(x, TRUE, TRUE) #  Maybe not?
   results = list()
   for (alg in 1:rivals.num){
-    results[[alg]] = get.result(alg,x)
+    results[[alg]] = get.result(alg, x, cluster.number = cluster.number)
   }
   return(list(iter,results))
 }
