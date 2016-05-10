@@ -14,7 +14,9 @@ CER<- function (partition1=NULL,partition2=NULL){
 
 #load('2016-05-08-06-33-48-info-2.RData') #  load Exp2 data
 #load('2016-05-08-14-17-15-info-2.RData')  #  load Exp3 data
-load('2016-05-08-09-31-44-info-2.RData')  #  load Exp4 data
+#load('2016-05-09-00-19-31-info-2.RData')  #  load Exp4 data log normal
+#load('2016-05-09-12-58-07-info-2.RData') #  load Exp4 data pois
+load('2016-05-09-14-48-43-info-2.RData') #  Exp4 data chauchy
 num.iter <- dim(info)[1]
 num.feature <- dim(info)[2]
 num.mus <- dim(info)[3]
@@ -38,13 +40,14 @@ alg.names <- c("k-means",expression(italic(l)["1"]),expression(italic(l)["0"]), 
 
 MakeBoxplot <- function(result, 
                         ylim = c(0,1), 
-                        mus  = c(0.6, 0.7)
+                        mus  = c(0.6, 0.7),
                         alg.names){
   # boxplot for simulaiotn 1 in sparse clustering paper
   par(mfrow = c(1,3), mai = c(.8, .8, .1, .1))
   mat <- result[, 1, 1, ]
+  ylab <- as.formula(paste('mu ~ "=" ~ ',mus[1]))
   boxplot(mat, col = c(0, 0, 2, 0, 0), 
-          boxwex = 0.4, ylab = expression(mu~'='~mus[1]), 
+          boxwex = 0.4, ylab = as.expression(ylab), 
           ylim = ylim,
           names = alg.names)
   
@@ -61,9 +64,10 @@ MakeBoxplot <- function(result,
   
   par(mfrow = c(1, 3), mai = c(.8, .8, .1, .1))
   mat <- result[, 1, 2, ]
+  ylab <- as.formula(paste('mu ~ "=" ~ ',mus[2]))
   boxplot(mat, col = c(0, 0, 2, 0, 0),
           boxwex = 0.4, xlab = "p = 200",
-          ylab = expression(mu~'='~mus[2]),
+          ylab = as.expression(ylab),
           ylim = ylim,
           names = alg.names)
   
@@ -81,9 +85,9 @@ MakeBoxplot <- function(result,
 }
 MakeBoxplot(result.cer, 
             ylim = c(0, 0.2),
-            mus = c(2, 4),
+            mus = c(2, 3),
             alg.names)
 MakeBoxplot(result.Fscore, 
             ylim = c(0, 1),
-            mus = c(2, 4),
+            mus = c(2, 3),
             alg.names)
