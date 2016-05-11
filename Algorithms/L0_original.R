@@ -57,7 +57,7 @@ update.Cs <- function (x, K, ws, Cs)
     }
   }
   if (is.null(mus)) {
-    km <- kmeans(z, centers = K, nstart = 20)
+    km <- kmeans(z, centers = K, nstart = initial.iter)
   }
   else {
     distmat <- as.matrix(dist(rbind(z, mus)))[1:nrowz, (nrowz +1):(nrowz + K)]
@@ -66,7 +66,7 @@ update.Cs <- function (x, K, ws, Cs)
       km <- kmeans(z, centers = mus)
     }
     else {
-      km <- kmeans(z, centers = K, nstart = 20)
+      km <- kmeans(z, centers = K, nstart = initial.iter)
     }
   }
   return(km$cluster)
