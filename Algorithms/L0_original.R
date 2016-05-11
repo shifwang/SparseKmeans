@@ -97,45 +97,65 @@ give.bcss <- function (x, Cs,w=NULL)
 }
 
 select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL, 
-                          nvals = 10, seed = 101) 
+                          nvals = 10, seed = 101, verbose = TRUE) 
 {
-  set.seed(seed)
+  require('doParallel')
+  require('foreach')
+  ncores <- min(3, 1 + nperms)
+  registerDoParallel(ncores)
   if (is.null(wbounds)) 
     wbounds <-exp(seq(log(10),log(ncol(x)),length.out=nvals))
-  x.null <- list()#the samples from x without cluster
-  signals <- NULL #number of nonzero weights of features
-  for (i in 1:nperms) { # calculate the null samples "nperm" times
-    x.null[[i]] <- matrix(NA, nrow = nrow(x), ncol = ncol(x))
-    for (j in 1:ncol(x)) x.null[[i]][, j] <- sample(x[, j])
-  }
-  bcss <- NULL
-  x.cluster <- give.cluster(x, K, wbounds = wbounds)#calculate the cluster with different parameters
-  for (i in 1:length(x.cluster)) {#scores of parameters for original data
-    signals <- c(signals, sum(x.cluster[[i]]$weight != 0))
-    bcss <- c(bcss,give.bcss(x, x.cluster[[i]]$Cs,x.cluster[[i]]$weight))
-  }
-  null.bcss <- matrix(NA, nrow = length(wbounds), ncol = nperms)
-  for (k in 1:nperms) {#calculate scores for permuted data
-    #print(k)
-    perm.out <- give.cluster(x.null[[k]], K, wbounds = wbounds)
+  x.null <- list()#  the samples from x without cluster
+  signals <- NULL #  number of nonzero weights of features
+  tmp <- foreach(iter = 0:nperms) { # calculate the null samples "nperm" times
+    if (iter == 0) { #  When iter == 0, no permutation performed.
+      if (verbose) {
+        cat('select.bound(ell_0): perform ell_0_kmeans on original data.\n')
+      }
+      x.cluster <- give.cluster(x, K, wbounds = wbounds)#  carry out ell_0_kmeans
+      bcss <- c()
+      for (i in 1:length(x.cluster)) {#scores of parameters for original data
+        signals <- c(signals, sum(x.cluster[[i]]$weight != 0))
+        bcss <- c(bcss, give.bcss(x, x.cluster[[i]]$Cs, x.cluster[[i]]$weight))
+      } 
+      return(list(iter, bcss, signals))
+    }
+    set.seed(seed * iter)  #  set random seed
+    x.null <- matrix(NA, nrow = nrow(x), ncol = ncol(x))
+    for (j in 1:ncol(x)) x.null[, j] <- sample(x[, j]) #  generate data
+    if (verbose) {
+        cat('select.bound(ell_0): perform ell_0_kmeans on iter ', i, '.\n')
+    }
+    perm.out <- give.cluster(x.null, K, wbounds = wbounds) #  calculate scores for permuted data
+    null.bcss <- rep(NA, length(wbounds))
     for (i in 1:length(perm.out)) {
-      null.bcss[i, k] <- give.bcss(x.null[[k]], perm.out[[i]]$Cs,perm.out[[i]]$weight)
+      null.bcss[i] <- give.bcss(x.null, perm.out[[i]]$Cs,perm.out[[i]]$weight)
+    }
+    return(list(iter, null.bcss))
+  }
+  gaps <- rep(0, length(wbounds))
+  for (item in tmp) {
+    if (item[[1]] == 0) {
+      gaps <- gaps + item[[2]]
+      signals <- log(item[[3]])
+    } else {
+      gaps <- gaps - log(item[[2]])/nperms
     }
   }
-  gaps <- (log(bcss) - apply(log(null.bcss), 1, mean))
-  out <- list(bcss = bcss, null.bcss = null.bcss, signals = signals, 
-              gaps = gaps,bounds=sum((perm.out[[i]]$weight)^(1/2)), wbounds = wbounds, 
+  out <- list(signals = signals, gaps = gaps, wbounds = wbounds, 
               bestw = wbounds[which.max(gaps)])
-  plot(wbounds,gaps,xlab='Number of Non-zero Weights',ylab='Gap Statistics')
+  if (verbose) {
+    plot(wbounds, gaps, xlab = 'Number of Non-zero Weights', ylab = 'Gap Statistics')
+  }
   return(out)
 }
-find.w<-function(ci,s){
-  ci[ci<0]<- 0
-  s<-trunc(s)
-  if (s==0)
+find.w <- function(ci, s){
+  ci[ci<0] <- 0
+  s <- trunc(s)
+  if (s == 0)
     stop('s cannot be zero!!!!')
-  ci.sorted<-sort(ci,index.return=TRUE,decreasing=TRUE)
-  x <- rep(0,length(ci))
-  x[ci.sorted$ix[1:s]]<-1
+  ci.sorted <- sort(ci, index.return=TRUE, decreasing=TRUE)
+  x <- rep(0, length(ci))
+  x[ci.sorted$ix[1:s]] <- 1
   return(x)
 }
