@@ -106,7 +106,7 @@ select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL,
   if (is.null(wbounds)) 
     wbounds <-exp(seq(log(10),log(ncol(x)),length.out=nvals))
   x.null <- list()#  the samples from x without cluster
-  signals <- NULL #  number of nonzero weights of features
+  signal.feature <- list() #  a list of relevant features
   tmp <- foreach(iter = 0:nperms) { # calculate the null samples "nperm" times
     if (iter == 0) { #  When iter == 0, no permutation performed.
       if (verbose) {
@@ -114,8 +114,8 @@ select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL,
       }
       x.cluster <- give.cluster(x, K, wbounds = wbounds)#  carry out ell_0_kmeans
       bcss <- c()
-      for (i in 1:length(x.cluster)) {#scores of parameters for original data
-        signals <- c(signals, sum(x.cluster[[i]]$weight != 0))
+      for (i in 1:length(x.cluster)) {#  scores of parameters for original data
+        signal.feature[[i]] <- x.cluster[[i]]$weight
         bcss <- c(bcss, give.bcss(x, x.cluster[[i]]$Cs, x.cluster[[i]]$weight))
       } 
       return(list(iter, bcss, signals))
@@ -137,12 +137,12 @@ select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL,
   for (item in tmp) {
     if (item[[1]] == 0) {
       gaps <- gaps + item[[2]]
-      signals <- log(item[[3]])
+      signal.feature <- log(item[[3]])
     } else {
       gaps <- gaps - log(item[[2]])/nperms
     }
   }
-  out <- list(signals = signals, gaps = gaps, wbounds = wbounds, 
+  out <- list(signal.feature = signal.feature[[which.max(gaps)]], gaps = gaps, wbounds = wbounds, 
               bestw = wbounds[which.max(gaps)])
   if (verbose) {
     plot(wbounds, gaps, xlab = 'Number of Non-zero Weights', ylab = 'Gap Statistics')
