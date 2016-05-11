@@ -1,5 +1,6 @@
-#give L0 results
-#parameter selected using original Gap Statistics
+# give L0 results
+# parameter selected using original Gap Statistics
+# Use parallel computing to speed up this algorithm
 give.cluster <- function (x, K = NULL, wbounds = NULL, 
                           initial.iter = 20, maxiter = 6,
                           seed = 123) 
