@@ -51,7 +51,7 @@ total.exp         = c(1, iter.num)
 info              = array(list(), total.exp)
 true.label        = c()
 library('R.matlab')
-raw.data <- readMat(paste(c('../SparseKmeans/data/dmatrix_', 1, '.mat'),collapse = ''))
+raw.data <- readMat(paste(c('../../SparseKmeans/data/dmatrix_', 1, '.mat'),collapse = ''))
 true.label <- raw.data$up.annot
 
 # Main Part
@@ -66,15 +66,18 @@ if (verbose) {
 
 library('foreach')
 library('doParallel')
-# ncores = 2 # Use two cores, use lscpu/nproc to check availabel cpus
-# registerDoParallel(ncores)
+ncores = 2 # Use two cores, use lscpu/nproc to check availabel cpus
+registerDoParallel(ncores)
 
 
 if (verbose) 
   len <- print(len, 'Run Experiments...')
 set.seed(11)
-x <- raw.data$dmatrix
+x <- t(raw.data$dmatrix)
 x <- scale(x, TRUE, TRUE) #  Maybe not?
+# delete NAs, because there are features that is always the same
+x <- x[,apply(is.na(x),2,sum) == 0]
+true.label <- raw.data$up.annot
 results <-  get.result(3, x, cluster.number = cluster.number)
 if (verbose) 
   len = print(len, ' Saving to disk...')

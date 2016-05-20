@@ -3,25 +3,33 @@
 # Use parallel computing to speed up this algorithm
 give.cluster <- function (x, K = NULL, wbounds = NULL, 
                           initial.iter = 20, maxiter = 6,
-                          seed = 123) 
+                          seed = 123, verbose = TRUE) 
 {
   set.seed(seed)
   wbounds <- c(wbounds)
   out<- NULL
   Cs0 <- kmeans(x, centers = K, nstart = initial.iter)$cluster
-  for (i in 1:length(wbounds)) { 
+  for (i in 1:length(wbounds)) {
+    if (verbose) {
+      cat('hard sparsity ', wbounds[i], ':')
+    }
     Cs <- Cs0
     w <- rep(1/sqrt(ncol(x)), ncol(x))
     w.old <- rep(1, ncol(x)) 
     iter <- 0
     while (sum(w!=w.old) >10  && 
              iter < maxiter) {
+      if (verbose) {
+        cat(iter,' ')
+      }
       iter <- iter + 1
       w.old <- w 
       w <- update.w(x, Cs, wbounds[i])
       Cs <- update.Cs(x, K, w, Cs)
     }
-    #print(iter)
+    if (verbose) {
+      cat('\n')
+    }
     out[[i]] <- list(weight = w, Cs = Cs, wbound = wbounds[i])
   }
   return(out);
@@ -29,7 +37,7 @@ give.cluster <- function (x, K = NULL, wbounds = NULL,
 L1<-function(x){
   return(sum(abs(x)))
 }
-update.Cs <- function (x, K, ws, Cs) 
+update.Cs <- function (x, K, ws, Cs, initial.iter = 1) 
 {
   if (sum(ws != 0) == 1) {
     only.one.feature <- T
@@ -88,8 +96,8 @@ give.bcss <- function (x, Cs,w=NULL)
   bcss.perfeature <- apply(scale(x, center = TRUE, scale = FALSE)^2, 
                            2, sum) - wcss.perfeature
   #############################
-  #######                ############
-  ############################
+  #######          ############
+  #############################
   if (is.null(w))
     return(bcss.perfeature)
   else
@@ -99,15 +107,15 @@ give.bcss <- function (x, Cs,w=NULL)
 select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL, 
                           nvals = 10, seed = 101, verbose = TRUE) 
 {
-  require('doParallel')
-  require('foreach')
-  ncores <- min(3, 1 + nperms)
+  library('foreach')
+  library('doParallel')
+  ncores <- 3
   registerDoParallel(ncores)
   if (is.null(wbounds)) 
     wbounds <-exp(seq(log(10),log(ncol(x)),length.out=nvals))
   x.null <- list()#  the samples from x without cluster
   signal.feature <- list() #  a list of relevant features
-  tmp <- foreach(iter = 0:nperms) { # calculate the null samples "nperm" times
+  tmp <- foreach(iter = 0:nperms) %dopar% { # calculate the null samples "nperm" times
     if (iter == 0) { #  When iter == 0, no permutation performed.
       if (verbose) {
         cat('select.bound(ell_0): perform ell_0_kmeans on original data.\n')
@@ -120,12 +128,12 @@ select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL,
       } 
       return(list(iter, bcss, signals))
     }
-    set.seed(seed * iter)  #  set random seed
-    x.null <- matrix(NA, nrow = nrow(x), ncol = ncol(x))
-    for (j in 1:ncol(x)) x.null[, j] <- sample(x[, j]) #  generate data
     if (verbose) {
         cat('select.bound(ell_0): perform ell_0_kmeans on iter ', i, '.\n')
     }
+    set.seed(seed * iter)  #  set random seed
+    x.null <- matrix(NA, nrow = nrow(x), ncol = ncol(x))
+    for (j in 1:ncol(x)) x.null[, j] <- sample(x[, j]) #  generate data
     perm.out <- give.cluster(x.null, K, wbounds = wbounds) #  calculate scores for permuted data
     null.bcss <- rep(NA, length(wbounds))
     for (i in 1:length(perm.out)) {
