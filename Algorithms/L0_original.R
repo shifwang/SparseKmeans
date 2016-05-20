@@ -144,8 +144,8 @@ select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL,
   gaps <- rep(0, length(wbounds))
   for (item in tmp) {
     if (item[[1]] == 0) {
-      gaps <- gaps + item[[2]]
-      signal.feature <- log(item[[3]])
+      gaps <- gaps + log(item[[2]])
+      signal.feature <- item[[3]]
     } else {
       gaps <- gaps - log(item[[2]])/nperms
     }
