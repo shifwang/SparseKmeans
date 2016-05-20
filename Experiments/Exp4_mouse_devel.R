@@ -17,7 +17,7 @@ get.result<- function(alg, x, cluster.number = 6){
     alg.name<- 'original L0'
     source('Algorithms/L0_original.R')
     best0 <- select.bound(x = x, K = cluster.number, nvals = 10, verbose = T )
-    Cs <- kmeans(x = x[, best0$signal.feature], K = cluster.number, nstart = 2 )
+    Cs <- kmeans(x = x[, best0$signal.feature], centers = cluster.number, nstart = 2 )
     #     out<-give.cluster(x=x,K=3,wbounds=50)
     return(list(name = alg.name, Cs = Cs, weights = best0$signal.feature ))
   }
@@ -73,15 +73,16 @@ registerDoParallel(ncores)
 if (verbose) 
   len <- print(len, 'Run Experiments...')
 set.seed(11)
-x <- t(raw.data$dmatrix)
+x <- t(raw.data$dmatrix)[,1:30]
 x <- scale(x, TRUE, TRUE) #  Maybe not?
 # delete NAs, because there are features that is always the same
 x <- x[,apply(is.na(x),2,sum) == 0]
-true.label <- raw.data$up.annot
-results <-  get.result(3, x, cluster.number = cluster.number)
+info <- list()
+info$true.label <- raw.data$up.annot
+info$results <-  get.result(3, x, cluster.number = cluster.number)
 if (verbose) 
   len = print(len, ' Saving to disk...')
-save(results,file = 'data.RData')
+save(info,file = 'data.RData')
 system(paste(c('mv data.RData ', 'bio_devel_','$(date "+%F-%H-%M-%S").RData '),collapse = ''))
 if (verbose) 
   len = print(len, 'Done.\n')
