@@ -107,12 +107,12 @@ give.bcss <- function (x, Cs,w=NULL)
 select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL, 
                           nvals = 10, seed = 101, verbose = TRUE) 
 {
-  library('foreach')
-  library('doParallel')
+  require('foreach')
+  require('doParallel')
   ncores <- 3
   registerDoParallel(ncores)
   if (is.null(wbounds)) 
-    wbounds <-exp(seq(log(10),log(ncol(x)),length.out=nvals))
+    wbounds <-exp(seq(log(10),log(ncol(x)/2),length.out=nvals))
   x.null <- list()#  the samples from x without cluster
   signal.feature <- list() #  a list of relevant features
   tmp <- foreach(iter = 0:nperms) %dopar% { # calculate the null samples "nperm" times
@@ -120,21 +120,21 @@ select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL,
       if (verbose) {
         cat('select.bound(ell_0): perform ell_0_kmeans on original data.\n')
       }
-      x.cluster <- give.cluster(x, K, wbounds = wbounds)#  carry out ell_0_kmeans
+      x.cluster <- give.cluster(x, K, wbounds = wbounds, initial.iter = 1)#  carry out ell_0_kmeans
       bcss <- c()
       for (i in 1:length(x.cluster)) {#  scores of parameters for original data
         signal.feature[[i]] <- x.cluster[[i]]$weight
         bcss <- c(bcss, give.bcss(x, x.cluster[[i]]$Cs, x.cluster[[i]]$weight))
       } 
-      return(list(iter, bcss, signals))
+      return(list(iter, bcss, signal.feature))
     }
     if (verbose) {
-        cat('select.bound(ell_0): perform ell_0_kmeans on iter ', i, '.\n')
+        cat('select.bound(ell_0): perform ell_0_kmeans on iter ', iter, '.\n')
     }
     set.seed(seed * iter)  #  set random seed
     x.null <- matrix(NA, nrow = nrow(x), ncol = ncol(x))
     for (j in 1:ncol(x)) x.null[, j] <- sample(x[, j]) #  generate data
-    perm.out <- give.cluster(x.null, K, wbounds = wbounds) #  calculate scores for permuted data
+    perm.out <- give.cluster(x.null, K, wbounds = wbounds, initial.iter = 1) #  calculate scores for permuted data
     null.bcss <- rep(NA, length(wbounds))
     for (i in 1:length(perm.out)) {
       null.bcss[i] <- give.bcss(x.null, perm.out[[i]]$Cs,perm.out[[i]]$weight)
