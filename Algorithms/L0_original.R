@@ -71,7 +71,7 @@ update.Cs <- function (x, K, ws, Cs, initial.iter = 1)
     distmat <- as.matrix(dist(rbind(z, mus)))[1:nrowz, (nrowz +1):(nrowz + K)]
     nearest <- apply(distmat, 1, which.min)
     if (length(unique(nearest)) == K) {
-      km <- kmeans(z, centers = mus)
+      km <- kmeans(z, centers = mus, nstart = initial.iter)
     }
     else {
       km <- kmeans(z, centers = K, nstart = initial.iter)
