@@ -112,7 +112,7 @@ select.bound <- function (x, K = NULL, nperms = 5, wbounds = NULL,
   ncores <- 3
   registerDoParallel(ncores)
   if (is.null(wbounds)) 
-    wbounds <-exp(seq(log(10),log(ncol(x)/2),length.out=nvals))
+    wbounds <-exp(seq(log(200),log(ncol(x)),length.out=nvals))
   x.null <- list()#  the samples from x without cluster
   signal.feature <- list() #  a list of relevant features
   tmp <- foreach(iter = 0:nperms) %dopar% { # calculate the null samples "nperm" times

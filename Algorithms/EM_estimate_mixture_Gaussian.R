@@ -2,7 +2,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
                                     penalty.type = 'l1',
                                     rel.tol  = 1e-6,
                                     abs.tol  = 1e-7,
-                                    max.iter = 300,
+                                    max.iter = 30,
                                     verbose  = TRUE,
                                     record   = FALSE,
                                     seed     = 101){
@@ -40,7 +40,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
     len <- Print(len, 'Calculating initials using kmeans...', start.time)
   }
   
-  out <- kmeans(data, k, nstart = 10)
+  out <- kmeans(data, k, nstart = 1)
   partition <- out$cluster
   tau <- matrix(1/k, n, k) #  TODO(Yu): give a better initial 
   centers <- out$centers
@@ -77,7 +77,7 @@ EstimateMixtureGaussian <- function(data, k, lambda,
       }
     }
     variance <- variance / n
-    stopifnot(!any(abs(variance) < 1e-10))
+    #stopifnot(!any(abs(variance) < 1e-10))
     # update centers
     for (j in 1:k) {
       if (portion[j] < 1e-10) {
