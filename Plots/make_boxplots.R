@@ -15,7 +15,7 @@ CER<- function (partition1=NULL,partition2=NULL){
 #load('2016-05-08-06-33-48-info-2.RData') #  load Exp2 data
 #load('2016-05-08-14-17-15-info-2.RData')  #  load Exp3 data
 #load('2016-05-09-00-19-31-info-2.RData')  #  load Exp4 data log normal
-load('2016-05-09-12-58-07-info-2.RData') #  load Exp4 data pois
+load('2016-05-10-11-43-31-info-2.RData') #  load Exp1 data with feature mean 0.75 + 0.5*runif(0,1)
 
 num.iter <- dim(info)[1]
 num.feature <- dim(info)[2]
