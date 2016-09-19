@@ -3,7 +3,9 @@
 # data is generated from mixture Gaussian with independent features
 # mu = 0.6 or 0.7
 # p  = 200, 500, 1000
-give.data <- function (SamplesPerCluster = 20, 
+
+# give.data is to generate suitable samples.
+give.data <- function (SamplesPerCluster = 20,
                        Nfeatures = 50, 
                        Nsignals = 10,
                        ClusterNumber = 3, mu = 1) {
@@ -15,7 +17,7 @@ give.data <- function (SamplesPerCluster = 20,
   return(x)
 }
 
-
+# get.result gives the clustering/feature selection for each algorithm.
 get.result<- function(alg,x){
   if (alg == 1){
     alg.name<-'Standard Kmeans'
@@ -54,7 +56,8 @@ get.result<- function(alg,x){
   }
 }
 
-mydivision <- function(testx, x, weights,Cs){
+# mydivision: cluster testx based on x and weights
+mydivision <- function(testx, x, weights,Cs){ # FIXME: Cs is redundant.
   cluster <- array(NA,nrow(testx))
   for (i in 1:nrow(testx)){
     y <- array(NA,nrow(x))
@@ -65,15 +68,19 @@ mydivision <- function(testx, x, weights,Cs){
   }
   return(cluster)
 }
+
 now <- proc.time()[[3]]
+# print: A combined timing/log output with erasable output.
 print <- function(num,str){
   #cat(paste(rep('\b',num),collapse = ''))
   str <- paste(str,sprintf(' Passed %1.1f min..',(proc.time()[[3]] - now)/60))
   cat(str, '\n')
   return(nchar(str))
 }
+
+# Main body
 criteria.num      = 6    # Number of criteria
-iter.num          = 20   # Run how many times to estimate the variation
+iter.num          = 50   # Run how many times to estimate the variation
 SamplesPerCluster = 20   # How many samples in one cluster
 Nsignals          = 50   # Signal features
 ClusterNumber     = 6    # Number of Cluster
