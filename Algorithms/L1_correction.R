@@ -1,6 +1,3 @@
-#2013年12月16日修改，用于gapstatistics说明
-#稍微修改了原文聚类的方法
-#修改了每次不同参数对应的Cs的重置
 KMeansSparseCluster <- function (x, K = NULL, wbounds = NULL, nstart = 20, silent = FALSE, 
                                  maxiter = 6, centers = NULL, seed = 123) 
 {

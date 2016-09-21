@@ -1,8 +1,12 @@
-# Run first experiment parallelly 
-# revised to make each feature not exactly the same
-# data is generated from mixture Gaussian with independent features
-# mu = 0.6 or 0.7
-# p  = 200, 500, 1000
+# Run simulation 1
+#   Test the performance of L0-k-means, L1-k-means, k-means, penalized log-likelihood (EM)
+#   on Gaussian mixture model.
+# Paras:
+#   mu = 0.6, 0.7 is baseline mean difference for each feature for different Gaussian mixtures
+#   p  = 200, 500, 1000 is the number of features
+#   features are *independent*
+#   Each feature should not be assigned the same weight.
+
 
 # give.data is to generate suitable samples.
 give.data <- function (SamplesPerCluster = 20,
@@ -26,9 +30,10 @@ get.result<- function(alg,x){
   }
   else if (alg == 2){
     alg.name <- 'Standard L1'
-    source('Algorithms/L1_correction.R', encoding='UTF-8')
+    source('Algorithms/L1_correction.R')
     bestl1 <- KMeansSparseCluster.permute(x = x, K = 6, nvals = 100,
                                         silent = T)
+    cat('here???\n')
     l1 <- KMeansSparseCluster(x = x, K = 6, wbounds = (bestl1$bestw), silent = T)
     #     l1<-KMeansSparseCluster(x=x,K=3,wbounds=10)
     return(list(name = alg.name, Cs = l1[[1]]$Cs, weights = l1[[1]]$ws))
@@ -88,7 +93,7 @@ rivals.num        = 5    # Number of algorithms
 Nfeatures         = c(200, 500, 1000) # Number of features
 mus               = c(0.6, 0.7)
 verbose           = TRUE
-set.seed(11)
+set.seed(110)
 total.exp         = c(iter.num, length(Nfeatures), length(mus))
 info              = array(list(), total.exp)
 true.label        = c()
@@ -108,7 +113,7 @@ if (verbose) {
 
 library('foreach')
 library('doParallel')
-ncores = 10 # Use ncores cores, use lscpu/nproc to check availabel cpus
+ncores = 12 # Use ncores cores, use lscpu/nproc to check availabel cpus
 registerDoParallel(ncores)
 
 for (mu_ind in 1:length(mus)){
