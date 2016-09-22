@@ -15,7 +15,10 @@ CER<- function (partition1=NULL,partition2=NULL){
 #load('2016-05-08-06-33-48-info-2.RData') #  load Exp2 data
 #load('2016-05-08-14-17-15-info-2.RData')  #  load Exp3 data
 #load('2016-05-09-00-19-31-info-2.RData')  #  load Exp4 data log normal
-load('2016-05-10-11-43-31-info-2.RData') #  load Exp1 data with feature mean 0.75 + 0.5*runif(0,1)
+# load('2016-09-21-02-21-50-info-2.RData') #  load Exp1 data with feature mean 0.75 + 0.5*runif(0,1)
+load('2016-09-21-13-57-16-info-2.RData')
+
+
 
 num.iter <- dim(info)[1]
 num.feature <- dim(info)[2]
@@ -84,10 +87,10 @@ MakeBoxplot <- function(result,
           names = alg.names)
 }
 MakeBoxplot(result.cer, 
-            ylim = c(0, 0.2),
-            mus = c(1, 1.5),
+            ylim = c(0, 0.4),
+            mus = c(0.6, 0.7),
             alg.names)
 MakeBoxplot(result.Fscore, 
             ylim = c(0, 1),
-            mus = c(1, 1.5),
+            mus = c(0.6, 0.7),
             alg.names)
