@@ -67,7 +67,7 @@ print <- function(num,str){
   return(nchar(str))
 }
 criteria.num      = 6    # Number of criteria
-iter.num          = 20   # Run how many times to estimate the variation
+iter.num          = 50   # Run how many times to estimate the variation
 SamplesPerCluster = 20   # How many samples in one cluster
 Nsignals          = 50   # Signal features
 ClusterNumber     = 6    # Number of Cluster
@@ -95,7 +95,7 @@ if (verbose) {
 
 library('foreach')
 library('doParallel')
-ncores = 10 # Use two cores, use lscpu/nproc to check availabel cpus
+ncores = 12 # Use two cores, use lscpu/nproc to check availabel cpus
 registerDoParallel(ncores)
 
 for (mu_ind in 1:length(mus)){
