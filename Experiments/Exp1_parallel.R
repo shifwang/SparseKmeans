@@ -15,7 +15,8 @@ give.data <- function (SamplesPerCluster = 20,
                        ClusterNumber = 3, mu = 1) {
   x <- matrix(rnorm(Nfeatures*SamplesPerCluster*ClusterNumber),ncol=Nfeatures)
   for (i in 1:ClusterNumber){
-    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] +(i-2)*mu*(0.75 + 0.5 * runif(Nsignals))
+    tmp <- matrix(1, nrow = SamplePerCluster, ncol = 1) %*% matrix(0.75 + 0.5*runif(Nsignals),ncol = Nsignals, nrow = 1) * mu
+    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] * tmp +(i-2)*mu
   }
   x <- scale(x, TRUE, TRUE)
   return(x)
