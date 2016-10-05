@@ -3,7 +3,7 @@
 # mu = 3, 5
 # p  = 200, 500, 1000
 give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNumber=3,mu=1) {
-  x <- matrix(rlpois(Nfeatures*SamplesPerCluster*ClusterNumber),ncol=Nfeatures)
+  x <- matrix(rpois(Nfeatures*SamplesPerCluster*ClusterNumber),ncol=Nfeatures)
   for (i in 1:ClusterNumber){
     x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] +(i-2)*mu
   }
