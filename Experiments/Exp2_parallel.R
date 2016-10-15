@@ -7,6 +7,8 @@ give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNu
   for (i in 1:Nfeatures)
     for (j in 1:Nfeatures){
       covr[i,j]=rho^(abs(i-j))
+      if (i == j){
+      	covr[i, j] = covr[i, j] + runif(1, 0.75, 1.25)
     }
   x <- matrix(NA,ncol=Nfeatures,nrow=SamplesPerCluster*ClusterNumber)
   for (i in 1:ClusterNumber){

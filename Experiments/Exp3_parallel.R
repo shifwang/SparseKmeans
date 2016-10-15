@@ -5,7 +5,7 @@
 give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNumber=3,mu=1) {
   x <- matrix(rlnorm(Nfeatures*SamplesPerCluster*ClusterNumber),ncol=Nfeatures)
   for (i in 1:ClusterNumber){
-    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] +(i-2)*mu
+    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals] <- x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nsignals]*runif(1, .75, 1.25) +(i-2)*mu
   }
   x <- scale(x, TRUE, TRUE)
   return(x)
@@ -73,7 +73,7 @@ Nsignals          = 50   # Signal features
 ClusterNumber     = 6    # Number of Cluster
 rivals.num        = 5    # Number of algorithms
 Nfeatures         = c(200, 500, 1000) # Number of features
-mus               = c(3, 5)
+mus               = c(2, 3)
 verbose           = TRUE
 set.seed(11)
 total.exp         = c(iter.num, length(Nfeatures), length(mus))
