@@ -13,7 +13,8 @@ give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNu
     }
   x <- matrix(NA,ncol=Nfeatures,nrow=SamplesPerCluster*ClusterNumber)
   for (i in 1:ClusterNumber){
-    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nfeatures] <- mvrnorm(n=SamplesPerCluster,c(rep(i*mu,Nsignals),rep(0,Nfeatures-Nsignals)),Sigma=covr)
+    direction = sample(c(-1, 1), Nsignals, replace = T)
+    x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nfeatures] <- mvrnorm(n=SamplesPerCluster,c(i*mu*direction,rep(0,Nfeatures-Nsignals)),Sigma=covr)
   }
   x <- scale(x, TRUE, TRUE)
   return(x)
