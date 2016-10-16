@@ -8,12 +8,12 @@ give.data <- function (SamplesPerCluster=20, Nfeatures=50, Nsignals=10,ClusterNu
     for (j in 1:Nfeatures){
       covr[i,j]=rho^(abs(i-j))
       if (i == j){
-      	covr[i, j] = covr[i, j] + runif(1, 0.75, 1.25)
+      	covr[i, j] = covr[i, j] #+ runif(1, 0, 1.25 - 1)
       }
     }
   x <- matrix(NA,ncol=Nfeatures,nrow=SamplesPerCluster*ClusterNumber)
   for (i in 1:ClusterNumber){
-    direction = sample(c(-1, 1), Nsignals, replace = T)
+    direction = sample(c(1), Nsignals, replace = T) # direction is always 1
     x[(SamplesPerCluster*(i-1)+1):(SamplesPerCluster*i),1:Nfeatures] <- mvrnorm(n=SamplesPerCluster,c(i*mu*direction,rep(0,Nfeatures-Nsignals)),Sigma=covr)
   }
   x <- scale(x, TRUE, TRUE)
